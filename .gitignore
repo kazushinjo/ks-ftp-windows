@@ -1,0 +1,5 @@
+bin/
+obj/
+ftproot/
+*.user
+.vs/
