@@ -41,8 +41,8 @@
             <StackPanel Margin="0,0,0,12" x:Name="EncodingPanel">
                 <TextBlock Text="文字コード (FTP/FTPS のファイル名)" FontSize="12" Foreground="#555" Margin="0,0,0,4"/>
                 <ComboBox x:Name="EncodingCombo" Padding="8,6" BorderBrush="#CCCCCC">
-                    <ComboBoxItem Content="Shift-JIS (日本語サーバー・推奨)" Tag="shift_jis"/>
                     <ComboBoxItem Content="UTF-8" Tag="utf-8"/>
+                    <ComboBoxItem Content="Shift-JIS (日本語サーバー)" Tag="shift_jis"/>
                 </ComboBox>
             </StackPanel>
 

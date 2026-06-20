@@ -16,7 +16,7 @@ public class ConnectionProfile
     public string Password { get; set; } = "";
     public string InitialPath { get; set; } = "/";
     // FTP/FTPS のファイル名エンコーディング ("shift_jis" / "utf-8")。SFTP は常に UTF-8。
-    public string FileEncoding { get; set; } = "shift_jis";
+    public string FileEncoding { get; set; } = "utf-8";
 
     [JsonIgnore]
     public string ProtocolDisplay => ProtocolType switch

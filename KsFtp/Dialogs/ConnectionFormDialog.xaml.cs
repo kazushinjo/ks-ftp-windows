@@ -16,7 +16,7 @@ public partial class ConnectionFormDialog : Window
         _editing = existing;
 
         ProtocolCombo.SelectedIndex = 0;
-        EncodingCombo.SelectedIndex = 0; // Shift-JIS デフォルト
+        EncodingCombo.SelectedIndex = 0; // UTF-8 デフォルト
 
         if (existing != null)
         {
@@ -33,7 +33,7 @@ public partial class ConnectionFormDialog : Window
             UsernameBox.Text = existing.Username;
             PasswordBox.Password = existing.Password;
             InitialPathBox.Text = existing.InitialPath?.Trim('/') ?? "";
-            EncodingCombo.SelectedIndex = (existing.FileEncoding ?? "shift_jis") == "utf-8" ? 1 : 0;
+            EncodingCombo.SelectedIndex = (existing.FileEncoding ?? "utf-8") == "shift_jis" ? 1 : 0;
         }
         else
         {

@@ -27,8 +27,7 @@ public static class FtpService
             }
             else
             {
-                using var client = CreateFtpClient(profile);
-                await client.Connect();
+                using var client = await ConnectFtpClient(profile);
                 var wd = await client.GetWorkingDirectory();
                 return string.IsNullOrEmpty(wd) ? "/" : (wd.EndsWith("/") ? wd : wd + "/");
             }
@@ -50,8 +49,7 @@ public static class FtpService
 
     private static async Task<List<RemoteFile>> ListDirectoryFtp(ConnectionProfile profile, string path)
     {
-        using var client = CreateFtpClient(profile);
-        await client.Connect();
+        using var client = await ConnectFtpClient(profile);
         var listing = await client.GetListing(path);
         return listing
             .Where(i => i.Name != "." && i.Name != "..")
@@ -112,8 +110,7 @@ public static class FtpService
         }
         else
         {
-            using var client = CreateFtpClient(profile);
-            await client.Connect();
+            using var client = await ConnectFtpClient(profile);
             var status = await client.DownloadFile(localPath, remotePath, FtpLocalExists.Overwrite);
             if (status == FtpStatus.Failed)
                 throw new Exception($"ダウンロードに失敗しました: {remotePath}");
@@ -135,8 +132,7 @@ public static class FtpService
         }
         else
         {
-            using var client = CreateFtpClient(profile);
-            await client.Connect();
+            using var client = await ConnectFtpClient(profile);
             var results = await client.DownloadDirectory(localPath, remotePath,
                 FtpFolderSyncMode.Update, FtpLocalExists.Overwrite);
             var failCount = results.Count(r => r.IsFailed);
@@ -179,8 +175,7 @@ public static class FtpService
         }
         else
         {
-            using var client = CreateFtpClient(profile);
-            await client.Connect();
+            using var client = await ConnectFtpClient(profile);
             var status = await client.UploadFile(localPath, remotePath, FtpRemoteExists.Overwrite, true);
             if (status == FtpStatus.Failed)
                 throw new Exception($"アップロードに失敗しました: {remotePath}");
@@ -202,8 +197,7 @@ public static class FtpService
         }
         else
         {
-            using var client = CreateFtpClient(profile);
-            await client.Connect();
+            using var client = await ConnectFtpClient(profile);
             var results = await client.UploadDirectory(localPath, remotePath,
                 FtpFolderSyncMode.Update, FtpRemoteExists.Overwrite);
             var failCount = results.Count(r => r.IsFailed);
@@ -258,8 +252,7 @@ public static class FtpService
         }
         else
         {
-            using var client = CreateFtpClient(profile);
-            await client.Connect();
+            using var client = await ConnectFtpClient(profile);
             await client.CreateDirectory(safePath);
         }
     }
@@ -279,8 +272,7 @@ public static class FtpService
         }
         else
         {
-            using var client = CreateFtpClient(profile);
-            await client.Connect();
+            using var client = await ConnectFtpClient(profile);
             await client.DeleteFile(path);
         }
     }
@@ -299,15 +291,17 @@ public static class FtpService
         }
         else
         {
-            using var client = CreateFtpClient(profile);
-            await client.Connect();
+            using var client = await ConnectFtpClient(profile);
             await client.DeleteDirectory(safePath);
         }
     }
 
     // ===== Helpers =====
 
-    private static AsyncFtpClient CreateFtpClient(ConnectionProfile profile)
+    // Connect し、その後でエンコーディングを上書き設定する。
+    // Connect() 中にサーバーの FEAT UTF8 応答でエンコードが UTF-8 に自動切替されるため、
+    // Connect 後に明示設定することで Shift-JIS を確実に維持する。
+    private static async Task<AsyncFtpClient> ConnectFtpClient(ConnectionProfile profile)
     {
         var config = new FtpConfig
         {
@@ -319,11 +313,13 @@ public static class FtpService
             ValidateAnyCertificate = true,
         };
         var client = new AsyncFtpClient(profile.Host, profile.Username, profile.Password, profile.Port, config);
-        // ファイル名エンコーディング（FTP/FTPS の LIST/RETR/STOR コマンド用）
+        await client.Connect();
+
+        // Connect() 完了後にエンコーディングを強制設定（UTF-8 自動切替を上書き）
         try
         {
-            var enc = string.IsNullOrEmpty(profile.FileEncoding) ? "shift_jis" : profile.FileEncoding;
-            client.Encoding = Encoding.GetEncoding(enc);
+            var encName = string.IsNullOrEmpty(profile.FileEncoding) ? "utf-8" : profile.FileEncoding;
+            client.Encoding = Encoding.GetEncoding(encName);
         }
         catch
         {
