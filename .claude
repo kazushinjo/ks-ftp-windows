@@ -1,0 +1,154 @@
+# KS-FTP for Windows - Claude Setup Configuration
+
+## 🚀 自動実行セットアップ（初回のみ）
+
+Claude でこのリポジトリを開いたときに、以下のコマンドを実行してください：
+
+### 方法 A: 統合セットアップスクリプト（推奨）
+
+```powershell
+.\scripts\setup.ps1
+```
+
+このスクリプトが自動的に以下を実行します：
+1. ✅ 環境検証（.NET 8.0）
+2. ✅ Release ビルド実行
+3. ✅ アプリ実行確認
+4. ✅ 完了メッセージ
+
+**所要時間: 2～3 分**
+
+**オプション:**
+```powershell
+# ビルドをスキップ（環境検証のみ）
+.\scripts\setup.ps1 -SkipBuild
+
+# 環境検証をスキップ
+.\scripts\setup.ps1 -SkipVerify
+```
+
+---
+
+### 方法 B: 手動実行（ステップバイステップ）
+
+#### ステップ 1️⃣: 環境検証
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+.\build-verify.ps1
+```
+
+**確認:** 全ての項目が ✓ OK になることを確認
+
+#### ステップ 2️⃣: Release ビルド実行
+
+```powershell
+dotnet build -c Release
+```
+
+**確認:** `Build succeeded. 0 Warning(s), 0 Error(s)` が表示されることを確認
+
+#### ステップ 3️⃣: アプリ実行確認
+
+```powershell
+.\KsFtp\bin\Release\net8.0-windows\KsFtp.exe
+```
+
+**確認:** アプリケーションが起動し、接続先ウィンドウが表示されることを確認
+
+#### ステップ 4️⃣: コミット・プッシュ（必要な場合）
+
+コード修正後：
+```powershell
+git add .
+git commit -m "コミットメッセージ"
+git push origin main
+```
+
+---
+
+## 📚 ドキュメント
+
+初めての方は以下を参照：
+
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - 統合セットアップガイド（5分）
+- **[CHECKLIST.md](CHECKLIST.md)** - ビルド前後のチェックリスト
+- **[BUILD_GUIDE.md](BUILD_GUIDE.md)** - ビルド手順の詳細
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** - 開発環境セットアップ
+- **[README.md](README.md)** - プロジェクト概要
+
+---
+
+## 🛠️ よく使うコマンド
+
+```powershell
+# Debug ビルド
+dotnet build -c Debug
+
+# Release ビルド
+dotnet build -c Release
+
+# キャッシュクリア
+dotnet clean
+
+# 環境検証
+.\build-verify.ps1
+
+# アプリ実行
+.\KsFtp\bin\Release\net8.0-windows\KsFtp.exe
+```
+
+---
+
+## 🔍 プロジェクト情報
+
+- **言語:** C# / WPF
+- **フレームワーク:** .NET 8.0
+- **.NET SDK バージョン:** 8.0 以上（global.json で指定）
+- **メインプロジェクト:** KsFtp/KsFtp.csproj
+- **ターゲット:** net8.0-windows (WPF)
+
+### 機能
+
+- **プロトコル:** FTP / FTPS (TLS) / SFTP (SSH)
+- **デュアルペイン:** ローカルとリモートを同時表示
+- **ファイル操作:** DL・UP・削除・フォルダ作成
+- **フォルダ転送:** フォルダ単位での再帰転送
+- **文字コード:** UTF-8 / Shift-JIS 対応
+- **接続プロファイル:** 複数接続先を保存・管理
+
+---
+
+## 📝 ビルド成果物
+
+```
+KsFtp/bin/Release/net8.0-windows/
+├── KsFtp.exe                # メイン実行ファイル
+├── KsFtp.dll
+├── FluentFTP.dll
+├── SSH.NET.dll
+├── CommunityToolkit.Mvvm.dll
+└── ... その他の依存ファイル
+```
+
+---
+
+## 💡 開発時の注意
+
+- `.editorconfig` でコードスタイルが統一されています
+- `global.json` で .NET SDK 8.0 が指定されています
+- 別の PC でもビルドできるようにドキュメント整備済み
+
+---
+
+## 🐛 エラーが出た場合
+
+1. **[BUILD_GUIDE.md](BUILD_GUIDE.md)** のトラブルシューティングを確認
+2. `dotnet clean` でキャッシュクリア
+3. `.\build-verify.ps1` で環境検証
+
+---
+
+**最終更新:** 2026-06-23
+**バージョン:** v1.0
+**ステータス:** ✅ 本番環境対応
